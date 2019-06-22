@@ -120,19 +120,24 @@ void    LIST_proc(LIST *prev, LIST *curr)
     }
     printf("\n");
 }
-
+// Возвращает индекс максимального элемента
+// ----------------------------------------
 int    LIST_max(LIST *head)
 {
-    int max;
-    int i;
-    int value;
+    int val, maxval;
+    int idx, maxidx;
 
-    max = 0;
-    i = 0;
-    while ((value = LIST_get(head, i++)) != -1)
-        if (value > max)
-            max = value;
-    return (max);
+    maxval = maxidx = idx = 0;
+    while ((val = LIST_get(head, idx)) != -1)
+    {
+        if (val > maxval)
+        {
+            maxval = val;
+            maxidx = idx;
+        }
+        idx++;
+    }
+    return (maxidx);
 }
 // Высвобождение памяти, занятой связанным списком
 // -----------------------------------------------
@@ -187,35 +192,54 @@ char ft_getchar()
 int main(int argc, char *argv[])
 {
     LIST * temphead;
-    //char *str = ft_getstr();
     char charset[3];
     int file;
-    int m,size,max,i = 0;
+    int m,length,size,i = 0, j, x, y, lx, ly;
     char c;
-    
 
     // инициализация списка
     Head[0].next = NULL;
     Head[1].next = NULL;
 
     file = open("test.txt", _O_RDONLY);
-    size = LIST_readstr(PrevHead, file);
-    max = LIST_max(PrevHead);
+    length = LIST_readstr(PrevHead, file);
+    size = LIST_max(PrevHead);
 
-    while(LIST_readstr(CurrHead, file) == size)
+    while(LIST_readstr(CurrHead, file) == length)
     {
         LIST_proc( PrevHead, CurrHead );
         m = LIST_max( CurrHead );
-        if( m > max ) max = m;
+        i++;
+        if( LIST_get(CurrHead, m) > size ) 
+        {
+            size = LIST_get(CurrHead, m);
+            y = i;
+            x = m;
+        }
         temphead = PrevHead;
         PrevHead = CurrHead;
         CurrHead = temphead;
     }
-    printf("\n%d", max);
-    // while((c = LIST_getchr(&Head[0] ,i++)) != '\n')
-    // {
-    //     printf("%c", c);
-    // }
+    lx = x - size + 1;
+    ly = y - size + 1;
+    printf("\nX=%d Y=%d SIZE=%d\n", lx, ly, size);
+
+    // отрисовываем квадрат
+    close (file);
+    file = open("test.txt", _O_RDONLY);
+    i = j = 0;
+    while( read(file, &c, 1) )
+    {
+        if( i >= ly && i <= y && j >= lx && j <= x )
+            c =  'x';
+        printf("%c",c);
+        j++;
+        if( c ==  '\n' )
+        {
+            j = 0;
+            i++;
+        }
+    }
 
     // освобождаем ресурсы
     close (file);
